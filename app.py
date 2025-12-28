@@ -12,12 +12,11 @@ load_dotenv()
 
 # --- YAPILANDIRMA ---
 CHROMA_DIR = "./.chroma_stardew"
-# ÖNEMLİ DEĞİŞİKLİK: ingest.py'de kullandığımız yeni koleksiyon adını buraya yazıyoruz
 COLLECTION = "stardew-knowledge" 
 OPENAI_MODEL = "gpt-4o"
 
-st.set_page_config(page_title="Stardew Valley Rehberi", page_icon="👨‍🌾")
-st.title("👨‍🌾 Stardew Valley Chatbot")
+st.set_page_config(page_title="Stardew Valley Rehberi", page_icon="📘")
+st.title("📘 Stardew Valley: Kapsamlı Rehber")
 
 # --- 1. VEKTÖR VERİTABANINA BAĞLANMA ---
 @st.cache_resource
@@ -43,7 +42,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-query = st.chat_input("Pelikan Kasabası hakkında sor...")
+query = st.chat_input("Rehber kitaba ve kayıtlara sor...")
 
 if query:
     # Kullanıcı mesajını göster
@@ -51,22 +50,26 @@ if query:
     st.session_state.messages.append({"role": "user", "content": query})
 
     with st.chat_message("assistant"):
-        with st.spinner("Çiftlik kayıtlarına bakılıyor..."):
+        with st.spinner("Rehber kitap sayfaları ve çiftlik kayıtları taranıyor..."):
             
             # --- MANUEL RETRIEVAL (Arama) ---
-            # Veri havuzu büyüdüğü için 'k' değerini 3'ten 4'e çıkarabiliriz, daha fazla bağlam alsın
-            docs = vectorstore.similarity_search(query, k=4)
+            # PDF eklediğimiz için k=6 yapıyoruz. PDF parçaları bazen uzundur, 
+            # net cevabı kaçırmamak için daha fazla bağlam çekmek iyidir.
+            docs = vectorstore.similarity_search(query, k=6)
             
             # Bulunan dökümanları birleştir
             context = "\n\n".join([doc.page_content for doc in docs])
             
             # --- MANUEL GENERATION (Üretim) ---
             system_instruction = (
-                "Sen neşeli bir Stardew Valley rehberisin. "
-                "Sorulan sorulara yalnızca Türkçe cevap ver. "
-                "Sadece aşağıdaki bilgileri kullanarak cevap ver. "
-                "Eğer sorulan şey bağlamda yoksa uydurma, 'Bilmiyorum' de. "
-                "Cevaplarında emoji kullan.\n\n"
+                "Sen uzman bir Stardew Valley asistanısın. "
+                "Eline hem karakter/ekin tabloları hem de detaylı bir rehber kitap geçti. "
+                "Sorulan sorulara Türkçe cevap ver. "
+                "Sadece aşağıdaki 'REHBER BİLGİLERİ' kısmındaki metinleri kullan. "
+                "Eğer bilgi CSV tablolarından geliyorsa net rakamlar ver. "
+                "Eğer bilgi Rehber Kitaptan (PDF) geliyorsa detaylı taktikler ver. "
+                "Bağlamda bilgi yoksa dürüstçe 'Bilmiyorum' de. "
+                "Cevaplarında uygun emojiler kullan (📖, 🥕, 🐟 vb).\n\n"
                 f"REHBER BİLGİLERİ:\n{context}"
             )
             
@@ -81,12 +84,16 @@ if query:
             
             st.markdown(answer)
             
-            # Kaynakları göster (Metadata 'name' olarak güncellendiği için burayı düzelttim)
+            # Kaynakları göster (Artık PDF kaynağını da göreceğiz)
             with st.expander("Göz atılan kaynaklar"):
                 for doc in docs:
-                    # ingest.py'de metadata olarak "name" ve "source" kaydetmiştik
-                    source_name = doc.metadata.get('name', 'Bilinmiyor')
-                    source_type = doc.metadata.get('source', 'Genel')
-                    st.write(f"- {source_type.upper()}: {source_name}")
+                    # Metadata kontrolü
+                    source_type = doc.metadata.get('source', 'Genel').replace("csv_", "").replace("pdf_", "").upper()
+                    name = doc.metadata.get('name', 'Bilinmiyor')
+                    
+                    # Kaynağa göre ikon ekleyelim
+                    icon = "📄" if "GUIDE" in source_type else "📊"
+                    
+                    st.write(f"{icon} **{source_type}:** {name}")
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
