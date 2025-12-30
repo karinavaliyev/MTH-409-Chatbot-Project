@@ -15,8 +15,8 @@ CHROMA_DIR = "./.chroma_stardew"
 COLLECTION = "stardew-knowledge" 
 OPENAI_MODEL = "gpt-4o"
 
-st.set_page_config(page_title="Stardew Valley Rehberi", page_icon="📘")
-st.title("📘 Stardew Valley: Kapsamlı Rehber")
+st.set_page_config(page_title="Stardew Valley Rehberi", page_icon="🧑‍🌾")
+st.title("🧑‍🌾 Stardew Valley Chatbot")
 
 # --- 1. VEKTÖR VERİTABANINA BAĞLANMA ---
 @st.cache_resource
@@ -42,7 +42,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-query = st.chat_input("Rehber kitaba ve kayıtlara sor...")
+query = st.chat_input("Ruhlar bugün fısıldaşmayı seviyor…")
 
 if query:
     # Kullanıcı mesajını göster
@@ -50,7 +50,7 @@ if query:
     st.session_state.messages.append({"role": "user", "content": query})
 
     with st.chat_message("assistant"):
-        with st.spinner("Rehber kitap sayfaları ve çiftlik kayıtları taranıyor..."):
+        with st.spinner("Yıldızçiyi Vadisi rehberine bakılıyor..."):
             
             # --- MANUEL RETRIEVAL (Arama) ---
             # PDF eklediğimiz için k=6 yapıyoruz. PDF parçaları bazen uzundur, 
@@ -62,7 +62,7 @@ if query:
             
             # --- MANUEL GENERATION (Üretim) ---
             system_instruction = (
-                "Sen uzman bir Stardew Valley asistanısın. "
+                "Sen Stardew Valley oyununda uzman bir asistansın. "
                 "Eline hem karakter/ekin tabloları hem de detaylı bir rehber kitap geçti. "
                 "Sorulan sorulara Türkçe cevap ver. "
                 "Sadece aşağıdaki 'REHBER BİLGİLERİ' kısmındaki metinleri kullan. "
@@ -84,16 +84,31 @@ if query:
             
             st.markdown(answer)
             
-            # Kaynakları göster (Artık PDF kaynağını da göreceğiz)
-            with st.expander("Göz atılan kaynaklar"):
+            # --- KAYNAK GÖSTERİMİ ---
+            with st.expander("📚 Kaynaklar"):
+                # Benzersiz kaynakları topla
+                sources_list = []
                 for doc in docs:
-                    # Metadata kontrolü
-                    source_type = doc.metadata.get('source', 'Genel').replace("csv_", "").replace("pdf_", "").upper()
-                    name = doc.metadata.get('name', 'Bilinmiyor')
+                    source = doc.metadata.get("source", "").lower()
+                    name = doc.metadata.get("name", "")
                     
-                    # Kaynağa göre ikon ekleyelim
-                    icon = "📄" if "GUIDE" in source_type else "📊"
+                    if "pdf" in source:
+                        page_num = doc.metadata.get("page", 0) + 1
+                        src_text = f"📖 Rehber Kitap - Sayfa {page_num}"
+                    elif "characters" in source:
+                        src_text = f"👤 Karakterler - {name}"
+                    elif "crops" in source:
+                        src_text = f"🌾 Ekinler - {name}"
+                    elif "csv" in source:
+                        src_text = f"📊 Veritabanı - {name}"
+                    else:
+                        src_text = f"📄 {name}" if name else "📄 Bilinmeyen Kaynak"
                     
-                    st.write(f"{icon} **{source_type}:** {name}")
+                    if src_text not in sources_list:
+                        sources_list.append(src_text)
+                
+                # Listeyi göster
+                for src in sources_list:
+                    st.markdown(f"• {src}")
 
     st.session_state.messages.append({"role": "assistant", "content": answer})

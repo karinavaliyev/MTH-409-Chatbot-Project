@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
+
 # PDF İşleyiciler
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -15,7 +16,7 @@ load_dotenv()
 CHROMA_DIR = "./.chroma_stardew"
 COLLECTION = "stardew-knowledge"
 EMBED_MODEL = "text-embedding-3-large"
-PDF_FILE = "data/StardewValley-Guide.pdf" # PDF dosyanın tam adı
+PDF_FILE = "data/StardewValley-Guide.pdf"
 
 # --- YARDIMCI FONKSİYONLAR ---
 def clean_list_str(s):
@@ -36,7 +37,7 @@ def process_csv_data():
     
     # KARAKTERLER
     if os.path.exists("data/characters.csv"):
-        print("📄 CSV: Karakterler işleniyor...")
+        print("CSV: Karakterler işleniyor...")
         df_char = pd.read_csv("data/characters.csv")
         for _, row in df_char.iterrows():
             text = (
@@ -57,7 +58,7 @@ def process_csv_data():
 
     # EKİNLER
     if os.path.exists("data/crops.csv"):
-        print("🌱 CSV: Ekinler işleniyor...")
+        print("CSV: Ekinler işleniyor...")
         df_crop = pd.read_csv("data/crops.csv")
         for _, row in df_crop.iterrows():
             crop_name = row['Name'] if pd.notna(row['Name']) else str(row['Seed']).replace(" Seeds", "")
@@ -94,7 +95,7 @@ def process_pdf_guide():
         print(f"UYARI: {PDF_FILE} bulunamadı, PDF işlenmeyecek.")
         return []
 
-    print("📚 PDF: Rehber kitabı okunuyor ve parçalanıyor (Bu biraz sürebilir)...")
+    print("PDF: PDF okunuyor ve parçalanıyor (Bu biraz sürebilir)...")
     
     loader = PyPDFLoader(PDF_FILE)
     raw_pages = loader.load()
@@ -115,7 +116,7 @@ def process_pdf_guide():
         page_num = doc.metadata.get("page", 0) + 1
         doc.metadata["name"] = f"Rehber Kitap (Sayfa {page_num})"
         
-    print(f"📚 PDF İşlendi: {len(chunks)} parça oluşturuldu.")
+    print(f"PDF İşlendi: {len(chunks)} parça oluşturuldu.")
     return chunks
 
 # --- ANA ÇALIŞTIRMA ---
@@ -129,10 +130,10 @@ def main():
     all_documents.extend(process_pdf_guide())
 
     if not all_documents:
-        print("❌ Hiçbir veri bulunamadı!")
+        print("Hiçbir veri bulunamadı!")
         return
 
-    print(f"\n💾 Toplam {len(all_documents)} bilgi parçasını veritabanına yüklüyorum...")
+    print(f"\nToplam {len(all_documents)} bilgi parçasını veritabanına yüklüyorum...")
 
     embeddings = OpenAIEmbeddings(model=EMBED_MODEL)
     
@@ -151,9 +152,9 @@ def main():
     for i in range(0, len(all_documents), batch_size):
         batch = all_documents[i:i+batch_size]
         vectorstore.add_documents(batch)
-        print(f"✅ {i + len(batch)} / {len(all_documents)} yüklendi.")
+        print(f"{i + len(batch)} / {len(all_documents)} yüklendi.")
 
-    print("\n🎉 TEBRİKLER! Artık chatbot'un hem CSV hem PDF verilerine hakim.")
+    print("\nTEBRİKLER! Artık chatbot'un hem CSV hem PDF verilerine hakim.")
 
 if __name__ == "__main__":
     main()
