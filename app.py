@@ -55,15 +55,14 @@ def delete_chat(chat_id):
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.header("⚙️ Ayarlar")
+    st.header("Ayarlar ⚙️")
     model_choice = st.radio("🤖 Model", ["OpenAI (GPT-4o)", "Google (Gemini)"], horizontal=True)
     
     st.divider()
-    st.header("💬 Sohbet Geçmişi")
-    
-    if st.button("➕ Yeni Sohbet", use_container_width=True):
+    if st.button("➕ Yeni Sohbet"):
         create_new_chat()
         st.rerun()
+    st.header("Sohbet Geçmişi 💬")
     
     # Sohbet listesi
     for chat in st.session_state.chat_history:
@@ -71,7 +70,7 @@ with st.sidebar:
         col1, col2 = st.columns([6, 1])
         
         with col1:
-            label = f"🔹 {chat['title']}" if is_active else f"💭 {chat['title']}"
+            label = f"{chat['title']}" if is_active else f"{chat['title']}"
             if st.button(label, key=f"chat_{chat['id']}", use_container_width=True):
                 st.session_state.current_chat_id = chat["id"]
                 st.rerun()
@@ -104,7 +103,7 @@ for msg in current_chat["messages"]:
         st.markdown(msg["content"])
         # Kaynakları expander ile göster
         if msg["role"] == "assistant" and "sources" in msg:
-            with st.expander("📚 Kaynaklar"):
+            with st.expander("Kaynaklar 📚"):
                 st.markdown(msg["sources"])
 
 # Sık sorulan sorular (sadece boş sohbette)
@@ -127,7 +126,7 @@ query = st.session_state.pop("pending_query", None) or st.chat_input("Ruhlar bug
 if query:
     # Başlığı güncelle
     if current_chat["title"] == "Yeni Sohbet":
-        current_chat["title"] = query[:30] + ("..." if len(query) > 30 else "")
+        current_chat["title"] = query[:20] + ("..." if len(query) > 20 else "")
     
     # Kullanıcı mesajını ekle ve göster
     current_chat["messages"].append({"role": "user", "content": query})
@@ -139,10 +138,10 @@ if query:
             docs = vectorstore.similarity_search(query, k=6)
             context = "\n\n".join([d.page_content for d in docs])
             
-            # Prompt
+            # System Prompt
             system = (
                 "Sen Stardew Valley oyununda uzman, samimi bir asistansın. Adın 'Stardew Rehberi'. "
-                "Cevaplarını Türkçe ver ve emojiler kullan.\n\n"
+                "Cevaplarını kullanıcıya Türkçe'ye çevirerek ver ve emojiler kullan.\n\n"
                 "KURALLAR:\n"
                 "1. Selamlaşma (merhaba, selam, nasılsın vb.) → Sıcak karşılık ver ve yardımcı olmayı teklif et.\n"
                 "2. Stardew Valley soruları → Aşağıdaki 'REHBER BİLGİLERİ'ni kullanarak cevapla.\n"
