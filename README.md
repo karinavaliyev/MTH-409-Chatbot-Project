@@ -11,6 +11,15 @@ Stardew Valley oyuncuları için Türkçe RAG (Retrieval-Augmented Generation) t
 - 🇹🇷 **Türkçe Yanıtlar**: Tüm cevaplar Türkçe olarak verilir
 - 📈 **RAGAS Değerlendirmesi**: Faithfulness, Context Recall ve Answer Relevancy metrikleriyle model performans analizi
 
+
+
+## 🎮 Demo
+<div align="center">
+  <video src="[VİDEO_LİNKİNİ_BURAYA_YAPIŞTIR](https://github.com/user-attachments/assets/6f1c4d60-2fad-431f-a37a-78a38c7aa677)" width="100%" controls autoplay muted loop>
+    Tarayıcınız video etiketini desteklemiyor.
+  </video>
+</div>
+
 ## 🛠️ Kurulum
 
 ### 1. Gereksinimler
