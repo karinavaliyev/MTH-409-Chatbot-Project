@@ -116,9 +116,14 @@ for model_info in models_to_test:
         
         response = llm.invoke([SystemMessage(content=system_msg), HumanMessage(content=q)])
         
+        # Gemini bazen liste döndürüyor, string'e çevir
+        answer_text = response.content
+        if isinstance(answer_text, list):
+            answer_text = "".join([part.get("text", "") if isinstance(part, dict) else str(part) for part in answer_text])
+        
         questions.append(q)
         ground_truths.append(item["ground_truth"])
-        answers.append(response.content)
+        answers.append(answer_text)
         contexts.append(retrieved_texts)
 
     # RAGAS Değerlendirmesi (RAGAS 0.2+ formatı)
