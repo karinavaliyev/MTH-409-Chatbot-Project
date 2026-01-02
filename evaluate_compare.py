@@ -78,6 +78,14 @@ test_data = [
     {
         "question": "Gece Pazarı (Night Market) hangi mevsimde ve hangi tarihlerde gerçekleşir?",
         "ground_truth": "Gece Pazarı, Kış (Winter) mevsiminde, ayın 15. 16. ve 17. günlerinde gerçekleşir."
+    },
+    {
+        "question": "Stardew Valley'de nasıl araba sürülür?",
+        "ground_truth": "Stardew Valley'de araba sürme özelliği bulunmamaktadır."
+    },
+    {
+        "question": "Oyunun 1.7 güncellemesi ile eklenecek olan yeni gezegenler ve uzay gemisi yakıtı tarifleri nelerdir?",
+        "ground_truth": "Ben sadece Stardew Valley hakkında yardımcı olabilirim! 🧑‍🌾 Stardew Valley ile ilgili başka bir sorunuz varsa, sormaktan çekinmeyin!"
     }
 ]
 
