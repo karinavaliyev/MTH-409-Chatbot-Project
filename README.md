@@ -33,7 +33,7 @@ GOOGLE_API_KEY=your-google-api-key
 `data/` klasörüne aşağıdaki dosyaları ekleyin:
 - `characters.csv` - Karakter bilgileri
 - `crops.csv` - Ekin bilgileri
-- `StardewValley-Guide.pdf` - Rehber kitap (opsiyonel)
+- `StardewValley-Guide.pdf` - Rehber kitap
 
 ### 4. Veri İndeksleme
 
