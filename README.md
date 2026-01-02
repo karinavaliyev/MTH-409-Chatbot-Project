@@ -11,6 +11,14 @@ Stardew Valley oyuncuları için Türkçe RAG (Retrieval-Augmented Generation) t
 - 🇹🇷 **Türkçe Yanıtlar**: Tüm cevaplar Türkçe olarak verilir
 - 📈 **RAGAS Değerlendirmesi**: Faithfulness, Context Recall ve Answer Relevancy metrikleriyle model performans analizi
 
+## 🎮 Demo
+
+Chatbot'un çalışır halini gösteren demo videosu:
+
+https://github.com/user-attachments/assets/6f1c4d60-2fad-431f-a37a-78a38c7aa677
+
+> 📹 *Video, chatbot'un Stardew Valley hakkında Türkçe sorulara nasıl yanıt verdiğini göstermektedir.*
+
 ## 🛠️ Kurulum
 
 ### 1. Gereksinimler
