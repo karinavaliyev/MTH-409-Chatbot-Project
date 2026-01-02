@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# ChromaDB Vector Database
+.chroma_stardew/
+
+# Environment
+.env
+
 # C extensions
 *.so
 

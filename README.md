@@ -9,6 +9,7 @@ Stardew Valley oyuncuları için Türkçe RAG (Retrieval-Augmented Generation) t
 - 📖 **PDF Rehber**: Stardew Valley rehber kitabından bilgi çekme
 - 🔍 **Akıllı Arama**: ChromaDB ile semantik arama
 - 🇹🇷 **Türkçe Yanıtlar**: Tüm cevaplar Türkçe olarak verilir
+- 📈 **RAGAS Değerlendirmesi**: Faithfulness, Context Recall ve Answer Relevancy metrikleriyle model performans analizi
 
 ## 🛠️ Kurulum
 
@@ -52,16 +53,44 @@ streamlit run app.py
 
 ```
 MTH-409-Chatbot-Project/
-├── app.py              # Streamlit arayüzü
-├── ingestion.py        # Veri işleme ve indeksleme
-├── requirements.txt    # Python bağımlılıkları
-├── .env                # API anahtarları (git'e eklenmemeli)
+├── app.py                      # Streamlit arayüzü
+├── ingestion.py                # Veri işleme ve indeksleme
+├── ragas_eval.py               # Tek model RAGAS değerlendirmesi
+├── evaluate_compare.py         # Çoklu model karşılaştırmalı değerlendirme
+├── requirements.txt            # Python bağımlılıkları
+├── .env                        # API anahtarları (git'e eklenmemeli)
 ├── data/
-│   ├── characters.csv  # Karakter verileri
-│   ├── crops.csv       # Ekin verileri
-│   └── StardewValley-Guide.pdf
-└── .chroma_stardew/    # Vektör veritabanı (otomatik oluşur)
+│   ├── characters.csv          # Karakter verileri
+│   ├── crops.csv               # Ekin verileri
+│   └── StardewValley-Guide.pdf # Oyun rehberi
+├── .chroma_stardew/            # Vektör veritabanı (otomatik oluşur)
+├── ragas_report.csv            # Tek model değerlendirme raporu
+└── model_comparison_report.csv # Model karşılaştırma raporu
 ```
+
+## 📊 RAGAS Değerlendirmesi
+
+Proje, RAG sisteminin kalitesini ölçmek için RAGAS framework'ünü kullanır.
+
+### Tek Model Değerlendirmesi
+
+```bash
+python ragas_eval.py
+```
+
+### Model Karşılaştırması (OpenAI vs Gemini)
+
+```bash
+python evaluate_compare.py
+```
+
+### Kullanılan Metrikler
+
+| Metrik | Açıklama |
+|--------|----------|
+| **Faithfulness** | Cevabın, verilen bağlama (context) ne kadar sadık olduğunu ölçer |
+| **Context Recall** | Ground truth'un bağlamdan ne kadar çıkarılabildiğini ölçer |
+| **Answer Relevancy** | Cevabın soruyla ne kadar alakalı olduğunu ölçer |
 
 ## 🎮 Kullanım
 
@@ -76,7 +105,9 @@ MTH-409-Chatbot-Project/
 - "Patates ne kadar sürede yetişir?"
 - "Yaz mevsiminde hangi ekinleri ekebilirim?"
 - "Emily'nin doğum günü ne zaman?"
+- "Missing Bundle için hangi malzemeler gerekir?"
 
 ## 📝 Lisans
 
 Bu proje MTH-409 dersi kapsamında eğitim amaçlı geliştirilmiştir.
+

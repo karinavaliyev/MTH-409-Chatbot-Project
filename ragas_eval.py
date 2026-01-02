@@ -8,7 +8,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 # RAGAS Kütüphaneleri
 from datasets import Dataset 
 from ragas import evaluate
-from ragas.metrics import faithfulness, context_recall
+from ragas.metrics import faithfulness, context_recall, answer_relevancy
 
 load_dotenv()
 
@@ -30,8 +30,6 @@ vectorstore = Chroma(
 llm = ChatOpenAI(model=OPENAI_MODEL, temperature=0)
 
 # --- 2. TEST VERİ SETİ (Ground Truth) ---
-# Hem CSV (net bilgi) hem PDF (yorum/rehber) içeren sorular hazırladım.
-# --- HİBRİT TEST VERİ SETİ (CSV + PDF Karışık) ---
 test_data = [
     {
         "question": "Altın kalitede bir Karnabahar (Cauliflower) kaç altına satılır?",
@@ -76,7 +74,7 @@ test_data = [
 ]
 
 # --- 3. SORULARI SİSTEME SOR (INFERENCE) ---
-print("\n🤖 Sorular sisteme soruluyor...")
+print("\nSorular sisteme soruluyor...\n")
 
 questions = []
 ground_truths = []
@@ -88,7 +86,7 @@ for i, item in enumerate(test_data, start=1):
     print(f"   Soru {i}: {q}")
 
     # A) Retrieval (Arama)
-    docs = vectorstore.similarity_search(q, k=5)
+    docs = vectorstore.similarity_search(q, k=6)
     retrieved_texts = [doc.page_content for doc in docs]
     
     # B) Generation (Cevap Üretme)
@@ -104,25 +102,32 @@ for i, item in enumerate(test_data, start=1):
     questions.append(q)
     ground_truths.append(item["ground_truth"])
     answers.append(response.content)
-    contexts.append(retrieved_texts) # Dikkat: RAGAS burayı liste içinde liste ister
+    contexts.append(retrieved_texts)
 
 # --- 4. RAGAS DEĞERLENDİRMESİ ---
-print("\n⚖️  RAGAS Hakemi Puanlıyor (Bu işlem biraz sürebilir)...\n")
+print("\nRAGAS Hakemi Puanlıyor (Bu işlem biraz sürebilir)...\n")
 
-# Veriyi RAGAS formatına çevir
+# Veriyi RAGAS formatına çevir (RAGAS 0.2+ için yeni sütun isimleri)
 data_dict = {
-    "question": questions,
-    "answer": answers,
-    "contexts": contexts,
-    "ground_truth": ground_truths
+    "user_input": questions,
+    "response": answers,
+    "retrieved_contexts": contexts,
+    "reference": ground_truths
 }
 dataset = Dataset.from_dict(data_dict)
 
 # Değerlendirmeyi Başlat
-# Hocanın özellikle istediği iki metrik: faithfulness ve context_recall
+from ragas.llms import LangchainLLMWrapper
+from ragas.embeddings import LangchainEmbeddingsWrapper
+
+evaluator_llm = LangchainLLMWrapper(llm)
+evaluator_embeddings = LangchainEmbeddingsWrapper(embeddings)
+
 results = evaluate(
     dataset=dataset, 
-    metrics=[faithfulness, context_recall]
+    metrics=[faithfulness, context_recall, answer_relevancy],
+    llm=evaluator_llm,
+    embeddings=evaluator_embeddings
 )
 
 # --- 5. SONUÇLARI RAPORLA ---
@@ -151,10 +156,8 @@ if 'faithfulness' in df_results.columns:
     cols_to_show.append('faithfulness')
 if 'context_recall' in df_results.columns:
     cols_to_show.append('context_recall')
-
-# Varsa cevapları da ekleyelim, görmek iyi olur
-if 'answer' in df_results.columns:
-    cols_to_show.append('answer')
+if 'answer_relevancy' in df_results.columns:
+    cols_to_show.append('answer_relevancy')
 
 # Tabloyu yazdır
 if cols_to_show:
